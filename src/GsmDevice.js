@@ -12,9 +12,9 @@ class GsmDevice {
     return new Promise((resolve, reject) => {
       this.port.write(command, (err) => {
         if (err) {
-          reject(err)
-          return
+          return reject(err)
         }
+
         this.pending.push(resolve)
       })
     })
