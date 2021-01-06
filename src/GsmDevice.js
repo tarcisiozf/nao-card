@@ -2,7 +2,6 @@
 class GsmDevice {
   constructor(port) {
     port.on('data', this._onData.bind(this))
-    port.on('error', this._onError.bind(this))
 
     this.pending = []
     this.port = port
@@ -24,10 +23,6 @@ class GsmDevice {
     const payload = buffer.toString('ascii')
     const cb = this.pending.shift()
     cb(payload)
-  }
-
-  _onError(err) {
-    console.error(err)
   }
 }
 
