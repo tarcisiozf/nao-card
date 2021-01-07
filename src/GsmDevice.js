@@ -57,7 +57,7 @@ class GsmDevice extends EventEmitter {
       .split(SEPARATOR)
       .filter(x => x.length > 0)
 
-    this.response = ''
+    this.response = []
 
     return payload
   }
