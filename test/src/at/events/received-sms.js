@@ -6,17 +6,29 @@ const {
 } = require('../../../../src/at')
 
 describe('AT/Events/ReceivedSms', () => {
+  const subscriber = sinon.stub()
+
   describe('#pattern', () => {
     it('gets the pattern regex', () => {
       expect(ReceivedSms.pattern).to.be.a('RegExp')
     })
   })
 
+  describe('#subscribe', () => {
+    it('subscribes a callback function', () => {
+      try {
+        ReceivedSms.subscribe(subscriber)
+        assert.isOk(true)
+      } catch (e) {
+        assert.fail()
+      }
+    })
+  })
+
   describe('#handle', () => {
     it('should keep working even if the message deletion fails', () => {
-      const body = 'body'
       const message = {
-        body,
+        body: 'body',
         messageStatus: 'REC READ',
         name: '',
         sender: '34p61627@6',
@@ -30,10 +42,10 @@ describe('AT/Events/ReceivedSms', () => {
       const args = [index]
 
       return ReceivedSms.handle(simMock, args)
-        .then((result) => {
-          expect(result).to.eq(body)
+        .then(() => {
           expect(simMock.readMessage.calledWithExactly(index)).to.be.true
           expect(simMock.deleteMessage.called).to.be.true
+          expect(subscriber.calledWithExactly(message)).to.be.true
         })
         .catch((error) => {
           expect(error).to.be.undefined
