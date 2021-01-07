@@ -27,15 +27,11 @@ describe('AT/Events/ReceivedSms', () => {
 
   describe('#handle', () => {
     it('should keep working even if the message deletion fails', () => {
-      const message = {
-        body: 'body',
-        messageStatus: 'REC READ',
-        name: '',
-        sender: '34p61627@6',
-        timestamp: new Date(2021, 0, 5, 12, 24, 24)
-      }
+      const message = { body: 'body' }
+      const entry = { number: '123' }
       const simMock = {
         readMessage: sinon.stub().resolves(message),
+        getPhonebookEntry: sinon.stub().resolves(entry),
         deleteMessage: sinon.stub().rejects()
       }
       const index = 42
@@ -44,8 +40,9 @@ describe('AT/Events/ReceivedSms', () => {
       return ReceivedSms.handle(simMock, args)
         .then(() => {
           expect(simMock.readMessage.calledWithExactly(index)).to.be.true
+          expect(simMock.getPhonebookEntry.called).to.be.true
           expect(simMock.deleteMessage.called).to.be.true
-          expect(subscriber.calledWithExactly(message)).to.be.true
+          expect(subscriber.calledWithExactly({ body: message.body, to: entry.number })).to.be.true
         })
         .catch((error) => {
           expect(error).to.be.undefined

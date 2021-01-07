@@ -9,6 +9,15 @@ module.exports.subscribe = (callback) => {
 module.exports.handle = (sim, [index]) => {
   return sim.readMessage(index)
     .then((message) => {
+      return sim.getPhonebookEntry(1)
+        .then((entry) => {
+          return {
+            ...message,
+            to: entry.number
+          }
+        })
+    })
+    .then((message) => {
       return sim.deleteMessage(index)
         .then(() => message)
         .catch((err) => {
