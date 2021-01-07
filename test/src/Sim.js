@@ -5,6 +5,7 @@ const EventEmitter = require('events')
 const Sim = require('../../src/Sim')
 const AtCommand = require('../../src/at/commands/ping')
 const AtEvent = require('../../src/at/events/received-sms')
+const events = Object.values(require('../../src/at/events'))
 
 describe('Sim', () => {
   afterEach(() => {
@@ -48,11 +49,17 @@ describe('Sim', () => {
     })
 
     it('could not handle event', () => {
+      const stubs = events.map((event) => sinon.stub(event, 'handle'))
+
       const payload = ['unknown event']
       const fakeDevice = new EventEmitter()
       const sim = new Sim(fakeDevice)
 
       fakeDevice.emit('event', payload)
+
+      stubs.forEach((stub) => {
+        expect(stub.called).to.be.false
+      })
     })
   })
 })
