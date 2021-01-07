@@ -11,10 +11,14 @@ class Sim {
     return this._sendCommand(commands.Ping)
   }
 
-  _sendCommand(at) {
-    return this.device.send(at.command())
+  enableTextMode() {
+    return this._sendCommand(commands.SelectOperatingMode, commands.SelectOperatingMode.TEXT_MODE)
+  }
+
+  _sendCommand({ command, handle }, ...args) {
+    return this.device.send(command.apply(null, args))
       .then((response) => {
-        return at.handle(response)
+        return handle(response)
       })
   }
 
