@@ -53,7 +53,7 @@ describe('GsmDevice', () => {
       const device = new GsmDevice(serialMock)
 
       device.on('sms', (data) => {
-        expect(data).to.eq('+CMTI: "SM",6')
+        expect(data).to.eql(['+CMTI: "SM",6'])
         done()
       })
 

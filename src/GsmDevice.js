@@ -1,6 +1,5 @@
 const { EOL } = require('os')
 const EventEmitter = require('events')
-const { constants: { OK, ERROR } } = require('./at')
 
 class GsmDevice extends EventEmitter {
   constructor(port) {
@@ -36,11 +35,6 @@ class GsmDevice extends EventEmitter {
     } else {
       this._emitEvent(payload)
     }
-  }
-
-  _hasCommandTerminator() {
-    return this.response.endsWith(OK)
-        || this.response.endsWith(ERROR)
   }
 
   _parseAndCleanResponse() {
