@@ -1,7 +1,7 @@
 const { assertStatus } = require('./utils/assertions')
 const regex = require('../../utils/regex')
 
-const rxHeader = /\+CMGL:\s+(\d+),"([^"]+)","([^"]+)",(?:"([^"]*)")?,"([^"]+)"/
+const rxHeader = /\+CMGR:\s+"([^"]+)","([^"]+)",(?:"([^"]*)")?,"([^"]+)"/
 const rxTimestamp = /(\d+\/\d+\/\d+),(\d+:\d+:\d+)(-?\d+)/
 
 const QUARTER_OF_AN_HOUR = 4
@@ -33,9 +33,8 @@ module.exports.handle = ([header, body, commandStatus]) => {
 
       return matches
     })
-    .then(([index, messageStatus, sender, name, timestamp]) => {
+    .then(([messageStatus, sender, name, timestamp]) => {
       return {
-        index,
         messageStatus,
         sender,
         name,
