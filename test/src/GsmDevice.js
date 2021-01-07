@@ -1,29 +1,15 @@
 const expect = require('chai').expect
 const sinon = require('sinon')
-const EventEmitter = require('events')
 
-const GsmDevice = require('../src/GsmDevice')
-
-/*
-<Buffer 41 54 0d 0a 4f 4b 0d 0a>
-AT
-OK
-
-[ 'AT', 'OK' ]
-<Buffer 0d 0a 2b 43 4d 54 49 3a 20 22 53 4d 22 2c 36 0d 0a>
-
-+CMTI: "SM",6
-
-[ '+CMTI: "SM",6' ]
-<Buffer 0d 0a 2b 43 4d 54 49 3a 20 22 53 4d 22 2c 37 0d 0a>
-
- */
+const SerialMock = require('../mocks/Serial')
+const GsmDevice = require('../../src/GsmDevice')
 
 describe('GsmDevice', () => {
   describe('#send', () => {
-    it('should get answer', async () => {
-      const serialMock = new EventEmitter()
-      serialMock.write = sinon.stub()
+    it('simple command and answer', async () => {
+      const serialMock = new SerialMock({
+        write: sinon.stub()
+      })
       const fakeCommand = 'AT'
       const answer = 'OK'
 
@@ -34,20 +20,23 @@ describe('GsmDevice', () => {
       expect(command).to.eq('AT\n')
       cb(null)
 
-      serialMock.emit('data', Buffer.from('AT\r\nOK\r\n'))
+      serialMock.fakeDataEvent('AT\r\nOK\r\n')
       const result = await promise
 
       expect(result).to.eq(answer)
     })
 
-    it('should return the error', () => {
+    it('failed to write', () => {
       const fakeCommand = 'fake command'
       const fakeErr = new Error('fails for some reason');
-      const serialMock = new EventEmitter()
-      serialMock.write = (command, cb) => {
+      const stubWrite = (command, cb) => {
         expect(command).to.eq('fake command\n')
         cb(fakeErr)
       }
+
+      const serialMock = new SerialMock({
+        write: stubWrite
+      })
 
       const device = new GsmDevice(serialMock)
 
@@ -55,6 +44,20 @@ describe('GsmDevice', () => {
         .catch((err) => {
           expect(err).to.eq(fakeErr)
         })
+    })
+  })
+
+  describe('Events', () => {
+    it('simple event', (done) => {
+      const serialMock = new SerialMock()
+      const device = new GsmDevice(serialMock)
+
+      device.on('sms', (data) => {
+        expect(data).to.eq('+CMTI: "SM",6')
+        done()
+      })
+
+      serialMock.fakeDataEvent('\r\n+CMTI: "SM",6\r\n')
     })
   })
 })

@@ -1,8 +1,10 @@
 const { EOL } = require('os')
+const EventEmitter = require('events')
 const { constants: { OK, ERROR } } = require('./at')
 
-class GsmDevice {
+class GsmDevice extends EventEmitter {
   constructor(port) {
+    super()
     port.on('data', this._onData.bind(this))
 
     this.pending = {}
@@ -27,14 +29,12 @@ class GsmDevice {
   _onData(buffer) {
     this.response += buffer.toString().trim()
 
-    if (this._hasCommandTerminator()) {
-      const [command, ...response] = this._parseAndCleanResponse()
+    const [command, ...response] = this._parseAndCleanResponse()
 
-      if (this._hasPendingCallback(command)) {
-        this._resolveCallback(command, response)
-      } else {
-        this._emitEvent(command, response)
-      }
+    if (this._hasPendingCallback(command)) {
+      this._resolveCallback(command, response)
+    } else {
+      this._emitEvent(command, response)
     }
   }
 
@@ -59,7 +59,8 @@ class GsmDevice {
     const callback = this.pending[command].shift()
 
     if (!response.length) {
-      return callback(command)
+      console.warn('Empty response', command)
+      return callback()
     }
 
     callback(
@@ -70,7 +71,7 @@ class GsmDevice {
   }
 
   _emitEvent(command, response) {
-
+    this.emit('sms', command)
   }
 }
 
