@@ -27,14 +27,14 @@ class GsmDevice extends EventEmitter {
   }
 
   _onData(buffer) {
-    this.response += buffer.toString().trim()
+    this.response += buffer.toString()
 
-    const [command, ...response] = this._parseAndCleanResponse()
+    const payload = this._parseAndCleanResponse()
 
-    if (this._hasPendingCallback(command)) {
-      this._resolveCallback(command, response)
+    if (this._hasPendingCallback(payload)) {
+      this._resolveCallback(payload)
     } else {
-      this._emitEvent(command, response)
+      this._emitEvent(payload)
     }
   }
 
@@ -44,18 +44,18 @@ class GsmDevice extends EventEmitter {
   }
 
   _parseAndCleanResponse() {
-    const payload = this.response.split('\r\n')
+    const payload = this.response.trim().split('\r\n')
     this.response = ''
 
     return payload
   }
 
-  _hasPendingCallback(command) {
+  _hasPendingCallback([command]) {
     return this.pending[command]
         && this.pending[command].length > 0
   }
 
-  _resolveCallback(command, response) {
+  _resolveCallback([command, ...response]) {
     const callback = this.pending[command].shift()
 
     if (!response.length) {
@@ -70,8 +70,8 @@ class GsmDevice extends EventEmitter {
     )
   }
 
-  _emitEvent(command, response) {
-    this.emit('sms', command)
+  _emitEvent(payload) {
+    this.emit('sms', payload)
   }
 }
 
