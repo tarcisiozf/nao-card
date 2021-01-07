@@ -1,4 +1,5 @@
 const { commands, events } = require('./at')
+const regex = require('./utils/regex')
 
 class Sim {
   constructor(device) {
@@ -24,11 +25,10 @@ class Sim {
 
   _onEvent([head, ...tail]) {
     for (const event of Object.values(events)) {
-      const matches = event.pattern.exec(head)
+      const matches = regex.extract(event.pattern, head)
 
       if (matches) {
-        const args = matches.slice(1)
-        return event.handle(this, args, tail)
+        return event.handle(this, matches, tail)
       }
     }
 
