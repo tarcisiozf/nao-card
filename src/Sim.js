@@ -16,6 +16,10 @@ class Sim {
     return this._sendCommand(commands.SelectOperatingMode, commands.SelectOperatingMode.TEXT_MODE)
   }
 
+  readMessage(index) {
+    return this._sendCommand(commands.ReadMessage, index)
+  }
+
   _sendCommand({ command, handle }, ...args) {
     return this.device.send(command.apply(null, args))
       .then((response) => {

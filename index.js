@@ -6,6 +6,9 @@ const main = async () => {
     .then(() => {
       return sim.enableTextMode()
     })
+    .then(() => {
+      return sim.readMessage(1)
+    })
 }
 
 main()
