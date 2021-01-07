@@ -1,6 +1,9 @@
 const { EOL } = require('os')
 const EventEmitter = require('events')
 
+const MAX_BUFFER_SIZE = 32
+const SEPARATOR = '\r\n'
+
 class GsmDevice extends EventEmitter {
   constructor(port) {
     super()
@@ -27,6 +30,10 @@ class GsmDevice extends EventEmitter {
 
   _onData(buffer) {
     this.response += buffer.toString()
+
+    if (buffer.length === MAX_BUFFER_SIZE && !this.response.endsWith(SEPARATOR)) {
+      return;
+    }
 
     const payload = this._parseAndCleanResponse()
 

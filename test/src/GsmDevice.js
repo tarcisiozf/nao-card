@@ -45,6 +45,37 @@ describe('GsmDevice', () => {
           expect(err).to.eq(fakeErr)
         })
     })
+
+    it('handle multiple buffers', async () => {
+      const serialMock = new SerialMock({
+        write: sinon.stub()
+      })
+      const fakeCommand = 'AT+CMGL'
+      const fakeData = '\r\nAT+CMGL'
+        + '\r\n+CMGL: 6,0,"",22'
+        + '\r\n0791550005114450240D91551499829587F200001210601213332902D53A'
+        + '\r\n\r\n+CMGL: 7,0,"",24'
+        + '\r\n0791550005114450240D91551499829587F200081210601213742904D83EDD11'
+        + '\r\n\r\nOK\r\n'
+
+      const device = new GsmDevice(serialMock)
+
+      const promise = device.send(fakeCommand)
+      const [command, cb] = serialMock.write.getCall(0).args
+      expect(command).to.eql('AT+CMGL\n')
+      cb(null)
+
+      serialMock.fakeDataEvent(fakeData)
+      const result = await promise
+
+      expect(result).to.eql([
+        '+CMGL: 6,0,"",22',
+        '0791550005114450240D91551499829587F200001210601213332902D53A',
+        '+CMGL: 7,0,"",24',
+        '0791550005114450240D91551499829587F200081210601213742904D83EDD11',
+        'OK'
+      ])
+    })
   })
 
   describe('Events', () => {
