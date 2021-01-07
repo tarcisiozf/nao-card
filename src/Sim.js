@@ -1,7 +1,9 @@
-const { commands } = require('./at')
+const { commands, events } = require('./at')
 
 class Sim {
   constructor(device) {
+    device.on('event', this._onEvent.bind(this))
+
     this.device = device
   }
 
@@ -14,6 +16,17 @@ class Sim {
       .then((response) => {
         return at.handle(response)
       })
+  }
+
+  _onEvent([head, ...tail]) {
+    for (const event of Object.values(events)) {
+      const matches = event.pattern.exec(head)
+
+      if (matches) {
+        const args = matches.slice(1)
+        return event.handle(args, tail)
+      }
+    }
   }
 }
 

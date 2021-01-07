@@ -1,0 +1,1 @@
+module.exports.ReceivedSms = require('./received-sms')
