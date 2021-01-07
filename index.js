@@ -1,16 +1,17 @@
 const factory = require('./src/SimFactory')
+const { events } = require('./src/at')
+
+const onReceiveSms = (message) => {
+  console.log(message)
+}
 
 const main = async () => {
+  events.ReceivedSms.subscribe(onReceiveSms)
+
   const sim = await factory.make('/dev/ttyUSB0')
   return sim.ping()
     .then(() => {
       return sim.enableTextMode()
-    })
-    .then(() => {
-      return sim.readMessage(6)
-    })
-    .then(() => {
-      return sim.deleteMessage(1)
     })
 }
 
