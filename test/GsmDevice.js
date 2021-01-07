@@ -4,17 +4,6 @@ const EventEmitter = require('events')
 
 const GsmDevice = require('../src/GsmDevice')
 
-const hexArrayToBuffer = (arr) => {
-  const len = arr.length
-  const byteArray = new Uint8Array(len)
-
-  for (let i = 0; i < len; i++) {
-    byteArray[i] = arr[i]
-  }
-
-  return Buffer.from(byteArray)
-}
-
 /*
 <Buffer 41 54 0d 0a 4f 4b 0d 0a>
 AT
@@ -45,7 +34,7 @@ describe('GsmDevice', () => {
       expect(command).to.eq('AT\n')
       cb(null)
 
-      serialMock.emit('data', hexArrayToBuffer([0x41, 0x54, 0x0d, 0x0a, 0x4f, 0x4b, 0x0d, 0x0a]))
+      serialMock.emit('data', Buffer.from('AT\r\nOK\r\n'))
       const result = await promise
 
       expect(result).to.eq(answer)
