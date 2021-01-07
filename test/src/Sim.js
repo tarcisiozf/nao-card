@@ -46,5 +46,13 @@ describe('Sim', () => {
       fakeDevice.emit('event', payload)
       expect(stubHandler.calledWithExactly(['6'], [])).to.be.true
     })
+
+    it('could not handle event', () => {
+      const payload = ['unknown event']
+      const fakeDevice = new EventEmitter()
+      const sim = new Sim(fakeDevice)
+
+      fakeDevice.emit('event', payload)
+    })
   })
 })

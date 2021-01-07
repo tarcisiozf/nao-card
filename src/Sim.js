@@ -27,6 +27,8 @@ class Sim {
         return event.handle(args, tail)
       }
     }
+
+    console.warn('Could not handle event:', head, tail)
   }
 }
 
