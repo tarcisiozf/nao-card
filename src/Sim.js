@@ -24,7 +24,7 @@ class Sim {
 
       if (matches) {
         const args = matches.slice(1)
-        return event.handle(args, tail)
+        return event.handle(this, args, tail)
       }
     }
 
