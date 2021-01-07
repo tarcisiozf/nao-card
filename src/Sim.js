@@ -24,6 +24,10 @@ class Sim {
     return this._sendCommand(commands.DeleteMessage, index)
   }
 
+  getPhonebookEntry(entry) {
+    return this._sendCommand(commands.GetPhonebookEntry, entry)
+  }
+
   _sendCommand({ command, handle }, ...args) {
     return this.device.send(command.apply(null, args))
       .then((response) => {

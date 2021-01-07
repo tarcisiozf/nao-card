@@ -13,6 +13,9 @@ const main = async () => {
     .then(() => {
       return sim.enableTextMode()
     })
+    .then(() => {
+      return sim.getPhonebookEntry(1)
+    })
 }
 
 main()
