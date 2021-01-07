@@ -39,7 +39,7 @@ describe('AT/Command/Ping', () => {
           assert.fail()
         })
         .catch((error) => {
-          expect(error).to.eq('Unknown status foo')
+          expect(error).to.eq('Unknown status: "foo"')
         })
     })
   })

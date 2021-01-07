@@ -1,1 +1,3 @@
-module.exports.Ping = require('./ping')
+module.exports = {
+  Ping: require('./ping'),
+}
