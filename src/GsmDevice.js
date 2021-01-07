@@ -38,7 +38,10 @@ class GsmDevice extends EventEmitter {
   }
 
   _parseAndCleanResponse() {
-    const payload = this.response.trim().split('\r\n')
+    const payload = this.response.trim()
+      .split(SEPARATOR)
+      .filter(x => x.length > 0)
+
     this.response = ''
 
     return payload
