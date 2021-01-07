@@ -3,8 +3,8 @@ const regex = require('../../utils/regex')
 
 const rxHeader = /\+CPBR: (\d+),"(\d+)",(\d+),"([^"]+)"/
 
-module.exports.command = (entry) => {
-  return `AT+CPBR=${entry}`
+module.exports.command = (index) => {
+  return `AT+CPBR=${index}`
 }
 
 module.exports.handle = ([header, status]) => {
@@ -16,13 +16,13 @@ module.exports.handle = ([header, status]) => {
 
   return assertStatus(status)
     .then(() => {
-      const [entry, sender, type, title] = matches
+      const [index, number, type, text] = matches
 
       return {
-        entry,
-        sender,
+        index,
+        number,
         type,
-        title
+        text
       }
     })
 }

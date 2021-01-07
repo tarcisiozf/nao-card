@@ -24,8 +24,8 @@ class Sim {
     return this._sendCommand(commands.DeleteMessage, index)
   }
 
-  getPhonebookEntry(entry) {
-    return this._sendCommand(commands.GetPhonebookEntry, entry)
+  getPhonebookEntry(index) {
+    return this._sendCommand(commands.GetPhonebookEntry, index)
   }
 
   _sendCommand({ command, handle }, ...args) {

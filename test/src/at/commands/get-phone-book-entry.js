@@ -18,10 +18,10 @@ describe('AT/Command/GetPhonebookEntry', () => {
       return GetPhonebookEntry.handle(payload)
         .then((entry) => {
           expect(entry).to.be.eql({
-            entry: '1',
-            sender: '5547988548837',
+            index: '1',
+            number: '5547988548837',
             type: '129',
-            title: 'Meu Numero',
+            text: 'Meu Numero',
           })
         })
         .catch((error) => {
