@@ -1,12 +1,14 @@
+const { OK, ERROR } = require('../constants')
+
 module.exports.command = () => {
   return 'AT'
 }
 
-module.exports.response = (data) => {
+module.exports.handle = (data) => {
   switch (data) {
-    case 'OK':
+    case OK:
       return Promise.resolve()
-    case 'ERROR':
+    case ERROR:
       return Promise.reject()
     default:
       return Promise.reject('Unknown status ' + data)
