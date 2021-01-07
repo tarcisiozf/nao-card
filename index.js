@@ -7,10 +7,15 @@ const main = async () => {
       return sim.enableTextMode()
     })
     .then(() => {
-      return sim.readMessage(1)
+      return sim.readMessage(6)
+    })
+    .then(() => {
+      return sim.deleteMessage(1)
     })
 }
 
 main()
-  .then(() => console.log('END'))
+  .then((results) => {
+    console.log('END', results)
+  })
   .catch(console.error)
