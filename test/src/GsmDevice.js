@@ -83,7 +83,7 @@ describe('GsmDevice', () => {
         'ito mais facilidade e agilidade',
         'pelo Minha Claro no WhatsApp. Ad',
         'icione o numero (11) 9999-10621',
-        'ou acesseclarobr.co/WPP14',
+        'ou acesse clarobr.co/WPP14',
         'OK'
       ])
     })

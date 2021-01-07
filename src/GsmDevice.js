@@ -8,7 +8,7 @@ class GsmDevice extends EventEmitter {
     port.on('data', this._onData.bind(this))
 
     this.callback = null
-    this.response = ''
+    this.response = []
     this.port = port
   }
 
@@ -29,7 +29,7 @@ class GsmDevice extends EventEmitter {
   }
 
   _onData(buffer) {
-    this.response += buffer.toString().trim()
+    this.response.push(buffer.toString())
 
     if (!this.callback) {
       const payload = this._parseAndCleanResponse()
@@ -46,12 +46,15 @@ class GsmDevice extends EventEmitter {
   }
 
   _hasTerminationStatus() {
-    return this.response.endsWith(OK)
-        || this.response.endsWith(ERROR)
+    const lastChunk = this.response[this.response.length - 1].trim()
+    return lastChunk.endsWith(OK)
+        || lastChunk.endsWith(ERROR)
   }
 
   _parseAndCleanResponse() {
-    const payload = this.response.split(SEPARATOR)
+    const payload = this.response
+      .join('')
+      .split(SEPARATOR)
       .filter(x => x.length > 0)
 
     this.response = ''
