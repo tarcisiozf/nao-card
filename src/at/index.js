@@ -1,4 +1,3 @@
-module.exports.constants = Object.freeze({
-  OK: 'OK',
-  ERROR: 'ERROR'
-})
+module.exports.constants = require('./constants')
+module.exports.commands = require('./commands')
+module.exports.events = require('./events')
