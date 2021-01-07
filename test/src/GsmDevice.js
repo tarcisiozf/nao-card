@@ -26,6 +26,25 @@ describe('GsmDevice', () => {
       expect(result).to.eq(answer)
     })
 
+    it('command without answers', async () => {
+      const serialMock = new SerialMock({
+        write: sinon.stub()
+      })
+      const fakeCommand = 'AT'
+
+      const device = new GsmDevice(serialMock)
+
+      const promise = device.send(fakeCommand)
+      const [command, cb] = serialMock.write.getCall(0).args
+      expect(command).to.eq('AT\n')
+      cb(null)
+
+      serialMock.fakeDataEvent('AT\r\n')
+      const result = await promise
+
+      expect(result).to.be.undefined
+    })
+
     it('failed to write', () => {
       const fakeCommand = 'fake command'
       const fakeErr = new Error('fails for some reason');
