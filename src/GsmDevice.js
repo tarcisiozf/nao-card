@@ -75,7 +75,7 @@ class GsmDevice extends EventEmitter {
   }
 
   _emitEvent(payload) {
-    this.emit('sms', payload)
+    this.emit('event', payload)
   }
 }
 
