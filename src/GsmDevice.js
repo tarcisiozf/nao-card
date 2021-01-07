@@ -1,21 +1,21 @@
 const { EOL } = require('os')
 const EventEmitter = require('events')
-
-const MAX_BUFFER_SIZE = 32
-const SEPARATOR = '\r\n'
+const { constants: { OK, ERROR, SEPARATOR } } = require('./at')
 
 class GsmDevice extends EventEmitter {
   constructor(port) {
     super()
     port.on('data', this._onData.bind(this))
 
-    this.pending = {}
+    this.callback = null
     this.response = ''
     this.port = port
   }
 
   send(command) {
-    const pending = this.pending[command] || []
+    if (this.callback) {
+      return Promise.reject()
+    }
 
     return new Promise((resolve, reject) => {
       this.port.write(command + EOL, (err) => {
@@ -23,30 +23,35 @@ class GsmDevice extends EventEmitter {
           return reject(err)
         }
 
-        this.pending[command] = pending.concat(resolve)
+        this.callback = resolve
       })
     })
   }
 
   _onData(buffer) {
-    this.response += buffer.toString()
+    this.response += buffer.toString().trim()
 
-    if (buffer.length === MAX_BUFFER_SIZE && !this.response.endsWith(SEPARATOR)) {
+    if (!this.callback) {
+      const payload = this._parseAndCleanResponse()
+      this._emitEvent(payload)
+      return;
+    }
+
+    if (!this._hasTerminationStatus()) {
       return;
     }
 
     const payload = this._parseAndCleanResponse()
+    this._resolveCallback(payload)
+  }
 
-    if (this._hasPendingCallback(payload)) {
-      this._resolveCallback(payload)
-    } else {
-      this._emitEvent(payload)
-    }
+  _hasTerminationStatus() {
+    return this.response.endsWith(OK)
+        || this.response.endsWith(ERROR)
   }
 
   _parseAndCleanResponse() {
-    const payload = this.response.trim()
-      .split(SEPARATOR)
+    const payload = this.response.split(SEPARATOR)
       .filter(x => x.length > 0)
 
     this.response = ''
@@ -54,24 +59,13 @@ class GsmDevice extends EventEmitter {
     return payload
   }
 
-  _hasPendingCallback([command]) {
-    return this.pending[command]
-        && this.pending[command].length > 0
-  }
-
-  _resolveCallback([command, ...response]) {
-    const callback = this.pending[command].shift()
-
-    if (!response.length) {
-      console.warn('Empty response', command)
-      return callback()
-    }
-
-    callback(
+  _resolveCallback([, ...response]) {
+    this.callback(
       response.length > 1
         ? response
         : response.pop()
     )
+    this.callback = null
   }
 
   _emitEvent(payload) {

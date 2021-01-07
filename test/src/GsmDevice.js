@@ -3,6 +3,7 @@ const sinon = require('sinon')
 
 const SerialMock = require('../mocks/Serial')
 const GsmDevice = require('../../src/GsmDevice')
+const { constants: { SEPARATOR } } = require('../../src/at')
 
 describe('GsmDevice', () => {
   describe('#send', () => {
@@ -24,25 +25,6 @@ describe('GsmDevice', () => {
       const result = await promise
 
       expect(result).to.eq(answer)
-    })
-
-    it('command without answers', async () => {
-      const serialMock = new SerialMock({
-        write: sinon.stub()
-      })
-      const fakeCommand = 'AT'
-
-      const device = new GsmDevice(serialMock)
-
-      const promise = device.send(fakeCommand)
-      const [command, cb] = serialMock.write.getCall(0).args
-      expect(command).to.eq('AT\n')
-      cb(null)
-
-      serialMock.fakeDataEvent('AT\r\n')
-      const result = await promise
-
-      expect(result).to.be.undefined
     })
 
     it('failed to write', () => {
@@ -69,29 +51,39 @@ describe('GsmDevice', () => {
       const serialMock = new SerialMock({
         write: sinon.stub()
       })
-      const fakeCommand = 'AT+CMGL'
-      const fakeData = '\r\nAT+CMGL'
-        + '\r\n+CMGL: 6,0,"",22'
-        + '\r\n0791550005114450240D91551499829587F200001210601213332902D53A'
-        + '\r\n\r\n+CMGL: 7,0,"",24'
-        + '\r\n0791550005114450240D91551499829587F200081210601213742904D83EDD11'
-        + '\r\n\r\nOK\r\n'
+      const fakeCommand = 'AT+CMGL="ALL"'
+      const fakeData = [
+        'AT+CMGL="ALL"',
+        '+CMGL: 1,"REC READ","34p61627@',
+        '6","","21/01/05,12:24:24-12"',
+        'Fa',
+        'ca recargas quando quiser com mu',
+        'ito mais facilidade e agilidade',
+        'pelo Minha Claro no WhatsApp. Ad',
+        'icione o numero (11) 9999-10621',
+        'ou acesse clarobr.co/WPP14',
+        'OK'
+      ].join(SEPARATOR)
 
       const device = new GsmDevice(serialMock)
 
       const promise = device.send(fakeCommand)
       const [command, cb] = serialMock.write.getCall(0).args
-      expect(command).to.eql('AT+CMGL\n')
+      expect(command).to.eql(fakeCommand + '\n')
       cb(null)
 
       serialMock.fakeDataEvent(fakeData)
       const result = await promise
 
-      expect(result).to.eql([
-        '+CMGL: 6,0,"",22',
-        '0791550005114450240D91551499829587F200001210601213332902D53A',
-        '+CMGL: 7,0,"",24',
-        '0791550005114450240D91551499829587F200081210601213742904D83EDD11',
+      expect(result).to.eql( [
+        '+CMGL: 1,"REC READ","34p61627@',
+        '6","","21/01/05,12:24:24-12"',
+        'Fa',
+        'ca recargas quando quiser com mu',
+        'ito mais facilidade e agilidade',
+        'pelo Minha Claro no WhatsApp. Ad',
+        'icione o numero (11) 9999-10621',
+        'ou acesseclarobr.co/WPP14',
         'OK'
       ])
     })
